@@ -1,108 +1,151 @@
-# RAG Pipeline Demo
+# Configurable RAG Pipeline with LlamaIndex 
 
-This is a simple demonstration of a RAG (Retrieval Augmented Generation) pipeline that works with local files. It shows how to:
-1. Load documents from your local filesystem
-2. Process different file types (PDF, DOCX, TXT, etc.)
-3. Create embeddings
-4. Store vectors locally
-5. Query the knowledge base
+## Watch DeepDive Video
 
-## Directory Structure
-```
-rag_workflow/
-├── sample_docs/     # Put your documents here
-├── storage/         # Vector store and index will be saved here
-├── rag_pipeline.py  # Main pipeline code
-└── README.md       # This file
-```
+Watch the DeepDive Tutorial on Our YouTube Channel:
 
-## Supported File Types
-- Documents: PDF (.pdf), Word (.docx), PowerPoint (.pptx)
-- Web: HTML (.html)
-- Images: PNG (.png), JPEG (.jpg, .jpeg)
-- Text: Plain text (.txt)
+<p align="center">
+    <a href="https://youtu.be/DYbwbs1sYa8">
+        <img src="https://img.youtube.com/vi/DYbwbs1sYa8/0.jpg" alt="Ultimate RAG Pipeline Crash Course Tutorial" width="560" height="315">
+    </a>
+</p>
 
-## Setup
+<p align="center">
+    <a href="https://www.youtube.com/channel/UCxgkN3luQgLQOd_L7tbOdhQ?sub_confirmation=1">
+        <img src="https://img.shields.io/badge/Subscribe-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Subscribe">
+    </a>
+</p>
 
-1. Create a virtual environment (optional but recommended):
+## Introduction
+
+This project demonstrates a flexible and configurable RAG (Retrieval-Augmented Generation) pipeline using LlamaIndex, featuring:
+- Multiple chunking strategies (Normal vs Hierarchical)
+- Flexible document processing (Basic vs LlamaParse)
+- Choice of embeddings (OpenAI vs Local FastEmbed)
+- Persistent storage of vector indices
+- Advanced retrieval and reranking capabilities
+
+## Key Features
+
+- **Multiple Chunking Strategies**: 
+  - Normal chunking with sentence windows
+  - Hierarchical chunking with multiple chunk sizes
+- **Flexible Document Processing**:
+  - Basic text processing
+  - Advanced LlamaParse support for multiple file formats (PDF, DOCX, PPTX, HTML, images)
+- **Embedding Options**:
+  - OpenAI embeddings (text-embedding-3-small)
+  - Local FastEmbed (BAAI/bge-small-en-v1.5)
+- **Advanced Retrieval**:
+  - Configurable similarity search
+  - Smart response synthesis
+  - Source citation in responses
+
+## Getting Started
+
+1. Clone this repository:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+git clone https://github.com/yourusername/rag-pipeline.git
+cd rag-pipeline
 ```
 
 2. Install dependencies:
 ```bash
-pip install llama-index-core llama-parse llama-index-readers-file python-dotenv llama-index-llms-openai llama-index-embeddings-openai
+pip install -r requirements.txt
 ```
 
-3. Create a `.env` file in the root directory with your API keys:
+3. Set up your environment variables in .env:
 ```bash
-OPENAI_API_KEY=your_openai_api_key
-LLAMA_CLOUD_API_KEY=your_llama_parse_api_key
+OPENAI_API_KEY='your_openai_api_key'
+LLAMA_CLOUD_API_KEY='your_llama_parse_api_key'  # Optional, for LlamaParse
 ```
 
-4. Put your documents in the `sample_docs` directory
-
-## Usage
-
-1. Run the pipeline:
+4. Run the pipeline:
 ```bash
-python rag_pipeline.py
+python rag_pipeline.py [--with-hierarchical-chunking] [--with-llamaparse] [--embedding-type openai|local]
 ```
 
-This will:
-- Process all documents in `sample_docs/`
-- Create embeddings using OpenAI's text-embedding-3-small model
-- Store the vectors locally in `storage/`
-- Run some demo queries
+## Project Structure
 
-2. The script will output:
-- Number of documents processed
-- Number of nodes created
-- Query results
+- `rag_pipeline.py`: Main pipeline implementation
+  - `RAGPipeline` class with configurable options
+  - Document processing and indexing
+  - Query handling and response generation
+- `sample_docs/`: Directory for input documents
+- `storage_*/`: Auto-generated storage for vector indices
 
-## How It Works
+## Core Components
 
-1. **Document Loading**: Uses `SimpleDirectoryReader` to load documents from the filesystem
+### RAGPipeline Class
+- Configurable initialization with embedding and chunking options
+- Document processing with metadata enrichment
+- Persistent storage of vector indices
+- Smart query handling with source citations
 
-2. **Document Processing**: 
-   - Files are processed based on their type using LlamaParse
-   - Each document is chunked using hierarchical chunking
-   - Metadata is added including creation time and file type
+### Document Processing
+- Support for multiple file formats via LlamaParse
+- Metadata enrichment (creation time, file type, statistics)
+- Flexible chunking strategies
 
-3. **Embedding Creation**:
-   - Uses OpenAI's text-embedding-3-small model
-   - Embeds each chunk of text into a 1536-dimensional vector
+### Query Engine
+- Vector similarity search
+- Response synthesis with source citations
+- Fallback mechanisms for robust responses
 
-4. **Vector Storage**:
-   - Vectors are stored locally in the `storage/` directory
-   - No external vector database needed
+## Requirements
 
-5. **Querying**:
-   - Creates a query engine from the index
-   - Finds relevant chunks using vector similarity
-   - Returns responses based on the matched chunks
+- Python 3.8+
+- OpenAI API key
+- LlamaParse API key (optional)
+- Dependencies listed in requirements.txt
 
-## Customization
-
-You can customize the pipeline by:
-1. Modifying chunk sizes in `RAGPipeline.__init__`
-2. Adding more file types to `file_extractors`
-3. Changing the embedding model
-4. Adding your own demo queries in `main()`
-
-## Example
+## Usage Examples
 
 ```python
-from rag_pipeline import RAGPipeline
-
-# Initialize pipeline
-pipeline = RAGPipeline()
+# Initialize with OpenAI embeddings and hierarchical chunking
+pipeline = RAGPipeline(
+    embedding_type=EmbeddingType.OPENAI,
+    chunking_strategy=ChunkingStrategy.HIERARCHICAL,
+    use_llama_parse=True
+)
 
 # Process documents
 index = pipeline.process_documents("sample_docs")
 
-# Query
-response = pipeline.query("What are the key points discussed in the documents?")
-print(response)
+# Query the knowledge base
+response = pipeline.query("What is the main topic of the document?")
 ```
+
+## Error Handling
+
+The system handles:
+- Missing API keys
+- Document processing errors
+- Index loading failures
+- Query processing issues
+
+## Contributing
+
+We welcome contributions! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+### Community and Support
+- Join our community: [Kno2gether Community](https://community.kno2gether.com)
+- Full Production Ready SaaS Launch Course (50% OFF): [End-to-End SaaS Launch Course](https://knolabs.biz/course-at-discount)
+
+### Hosting Partners
+- [Kamatera - Get $100 Free VPS Credit](https://knolabs.biz/100-dollar-free-credit)
+- [Hostinger - Additional 20% Discount](https://knolabs.biz/20-Percent-Off-VPS)
+
+## Video Tutorials
+
+Follow along with our detailed video tutorials on the [Kno2gether YouTube Channel](https://youtube.com/@kno2gether) for step-by-step guidance and best practices.
+
+## Conclusion
+
+This RAG pipeline demonstrates a powerful and flexible approach to document processing and question answering, with multiple configuration options to suit different use cases.
+
+Happy coding! 
